@@ -1,22 +1,37 @@
+require('dotenv').config();
 const express = require('express');
 const app = express();
 const cors = require('cors');
-const geoData = require('./data/geo.json');
-const weather = require('./darksky.json');
+const weather = require('./data/darksky.json');
+const request = require('superagent');
 
 app.use(cors());
 
 let lat;
 let lng;
 
-app.get('/location', (request, respond) => {
-    const cityData = geoData.results[0];
+app.get('/location', async(req, res, next) => {
+    try {
+        const location = req.query.search;
 
-    respond.json({
-        formatted_query: cityData.formatted_address,
-        latitude: cityData.geometry.location.lat,
-        longitude: cityData.geometry.location.lng, 
-    });
+        const URL = `https://us1.locationiq.com/v1/search.php?key=${process.env.GEOCODE_API_KEY}&q=${location}&format=json`;
+
+        const cityData = await request.get(URL);     
+
+        const firstResult = cityData.body[0];
+
+    
+        lat = firstResult.lat;
+        lng = firstResult.lon;
+
+        res.json({
+            formatted_query: firstResult.display_name,
+            latitude: lat,
+            longitude: lng,  
+        });
+    } catch (err) {
+        next(err);
+    }
 });
 
 const getWeatherData = (lat, lng) => {
@@ -30,7 +45,7 @@ const getWeatherData = (lat, lng) => {
 
 app.get('/weather', (req, res) => {
     const portlandWeather = getWeatherData(lat, lng);
-    req.json(portlandWeather);
+    res.json(portlandWeather);
 });
 
 
