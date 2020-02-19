@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 const geoData = require('./data/geo.json');
-const weather = require('./darksky.json');
+const weather = require('./data/darksky.json');
 
 app.use(cors());
 
@@ -11,6 +11,11 @@ let lng;
 
 app.get('/location', (request, respond) => {
     const cityData = geoData.results[0];
+    
+    // const location = request.query.search;
+    
+    lat = cityData.geometry.location.lat;
+    lng = cityData.geometry.location.lng;
 
     respond.json({
         formatted_query: cityData.formatted_address,
@@ -30,7 +35,7 @@ const getWeatherData = (lat, lng) => {
 
 app.get('/weather', (req, res) => {
     const portlandWeather = getWeatherData(lat, lng);
-    req.json(portlandWeather);
+    res.json(portlandWeather);
 });
 
 
