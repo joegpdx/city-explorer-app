@@ -94,6 +94,28 @@ app.get('/reviews', async(req, res) => {
     }
 });
 
+app.get('/trails', async(req, res) => {
+    try {
+        const trailsData = await request.get(`https://www.hikingproject.com/data/get-trails?lat=${lat}&lon=${lng}&maxDistance=10&key=${process.env.TRAIL_API_KEY}`);
+
+        const trails = trailsData.body.trails.map(trails =>{
+            return {
+                name: trails.name,
+                location: trails.location,
+                length: trails.length,
+                stars: trails.stars,
+                starVotes: trails.starVotes,
+                summary: trails.summary,
+                url: trails.url,
+                conditionDate: Date(trails.conditionDatenew * 1000)
+            };
+        });
+        res.json(trails);
+    } catch (err) {
+        res.status(500).send('Sorry something went wrong, please try again');
+    }
+});
+
 
 app.get('*', (req, res) => res.send('404!!!!!!'));
 
