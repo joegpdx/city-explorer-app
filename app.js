@@ -61,7 +61,6 @@ const getEventData = async(lat, lng) => {
         return {
             link: events.url,
             name: events.title,
-            event_date: events.end_time,
             summary: events.description
         };
     });
